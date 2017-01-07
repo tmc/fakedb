@@ -14,7 +14,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"testing"
 	"time"
 )
 
@@ -286,20 +285,9 @@ func setHookpostCloseConn(fn func(*fakeConn, error)) {
 	hookPostCloseConn.fn = fn
 }
 
-var testStrictClose *testing.T
-
-// setStrictFakeConnClose sets the t to Errorf on when fakeConn.Close
-// fails to close. If nil, the check is disabled.
-func setStrictFakeConnClose(t *testing.T) {
-	testStrictClose = t
-}
-
 func (c *fakeConn) Close() (err error) {
 	drv := fdriver.(*fakeDriver)
 	defer func() {
-		if err != nil && testStrictClose != nil {
-			testStrictClose.Errorf("failed to close a test fakeConn: %v", err)
-		}
 		hookPostCloseConn.Lock()
 		fn := hookPostCloseConn.fn
 		hookPostCloseConn.Unlock()
